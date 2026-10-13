@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador Pro: Todos los Mercados en 6/6</title>
+  <title>Analizador Pro - Muestra y Memoria Automática</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 1150px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
@@ -21,8 +21,11 @@
     .stat-row { display: grid; grid-template-columns: 100px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 6px; font-size: 12px; }
     input[type="number"] { background: #334155; color: #fff; border: 1px solid #475569; padding: 6px; border-radius: 4px; text-align: center; width: 100%; }
     
-    button { background: #0284c7; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; margin-top: 15px; }
-    button:hover { background: #0369a1; }
+    .btn-container { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-main { background: #0284c7; color: white; border: none; padding: 14px; flex: 3; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+    .btn-main:hover { background: #0369a1; }
+    .btn-clear { background: #ef4444; color: white; border: none; padding: 14px; flex: 1; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    .btn-clear:hover { background: #dc2626; }
     
     .section-title { color: #facc15; font-size: 16px; margin: 25px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 5px; }
     .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -36,10 +39,11 @@
 <body>
 
   <div class="card">
-    <h2>Analizador Pro: Todos los Mercados evaluados en 6/6</h2>
+    <h2>Analizador Pro de Partidos (Con Guardado Automático)</h2>
     <div class="subtitle">
       • <strong>Local (Izquierda):</strong> A Favor (Izq) | En Contra (Der)<br>
-      • <strong>Visitante (Derecha):</strong> En Contra (Izq) | A Favor (Der)
+      • <strong>Visitante (Derecha):</strong> En Contra (Izq) | A Favor (Der)<br>
+      💾 <em>Tus datos se guardan automáticamente. Si cierras la app, seguirán aquí al volver.</em>
     </div>
 
     <div class="grid">
@@ -56,7 +60,10 @@
       </div>
     </div>
 
-    <button onclick="ejecutarAnalisisTotal()">Analizar Todos los Mercados en 6/6</button>
+    <div class="btn-container">
+      <button class="btn-main" onclick="ejecutarAnalisisTotal()">Analizar Todos los Mercados</button>
+      <button class="btn-clear" onclick="borrarDatos()">Limpiar Datos</button>
+    </div>
   </div>
 
   <div class="card">
@@ -88,8 +95,8 @@
           htmlHome += `
             <div class="stat-row">
               <span>${m.name}:</span>
-              <input type="number" id="home_${i}_${m.id}_f" placeholder="Favor">
-              <input type="number" id="home_${i}_${m.id}_a" placeholder="Contra">
+              <input type="number" id="home_${i}_${m.id}_f" oninput="guardarInput(this)">
+              <input type="number" id="home_${i}_${m.id}_a" oninput="guardarInput(this)">
             </div>`;
         });
         htmlHome += `</div>`;
@@ -111,15 +118,37 @@
           htmlAway += `
             <div class="stat-row">
               <span>${m.name}:</span>
-              <input type="number" id="away_${i}_${m.id}_a" placeholder="Contra">
-              <input type="number" id="away_${i}_${m.id}_f" placeholder="Favor">
+              <input type="number" id="away_${i}_${m.id}_a" oninput="guardarInput(this)">
+              <input type="number" id="away_${i}_${m.id}_f" oninput="guardarInput(this)">
             </div>`;
         });
         htmlAway += `</div>`;
       }
       document.getElementById('away-matches').innerHTML = htmlAway;
 
-      cargarDefaults();
+      cargarMemoriaOGuardarDefaults();
+    }
+
+    function guardarInput(input) {
+      localStorage.setItem(`app_stat_${input.id}`, input.value);
+    }
+
+    function cargarMemoriaOGuardarDefaults() {
+      const inputs = document.querySelectorAll('input[type="number"]');
+      let hayDatosPrevios = false;
+
+      inputs.forEach(input => {
+        const valGuardado = localStorage.getItem(`app_stat_${input.id}`);
+        if (valGuardado !== null) {
+          input.value = valGuardado;
+          hayDatosPrevios = true;
+        }
+      });
+
+      // Si es la primera vez que abre la app, carga valores de ejemplo
+      if (!hayDatosPrevios) {
+        cargarDefaults();
+      }
     }
 
     function cargarDefaults() {
@@ -136,19 +165,38 @@
 
       defaultsHome.forEach((m, idx) => {
         const i = idx + 1;
-        document.getElementById(`home_${i}_g_f`).value = m[0]; document.getElementById(`home_${i}_g_a`).value = m[1];
-        document.getElementById(`home_${i}_c_f`).value = m[2]; document.getElementById(`home_${i}_c_a`).value = m[3];
-        document.getElementById(`home_${i}_st_f`).value = m[4]; document.getElementById(`home_${i}_st_a`).value = m[5];
-        document.getElementById(`home_${i}_sa_f`).value = m[6]; document.getElementById(`home_${i}_sa_a`).value = m[7];
+        setAndSave(`home_${i}_g_f`, m[0]); setAndSave(`home_${i}_g_a`, m[1]);
+        setAndSave(`home_${i}_c_f`, m[2]); setAndSave(`home_${i}_c_a`, m[3]);
+        setAndSave(`home_${i}_st_f`, m[4]); setAndSave(`home_${i}_st_a`, m[5]);
+        setAndSave(`home_${i}_sa_f`, m[6]); setAndSave(`home_${i}_sa_a`, m[7]);
       });
 
       defaultsAway.forEach((m, idx) => {
         const i = idx + 1;
-        document.getElementById(`away_${i}_g_f`).value = m[0]; document.getElementById(`away_${i}_g_a`).value = m[1];
-        document.getElementById(`away_${i}_c_f`).value = m[2]; document.getElementById(`away_${i}_c_a`).value = m[3];
-        document.getElementById(`away_${i}_st_f`).value = m[4]; document.getElementById(`away_${i}_st_a`).value = m[5];
-        document.getElementById(`away_${i}_sa_f`).value = m[6]; document.getElementById(`away_${i}_sa_a`).value = m[7];
+        setAndSave(`away_${i}_g_f`, m[0]); setAndSave(`away_${i}_g_a`, m[1]);
+        setAndSave(`away_${i}_c_f`, m[2]); setAndSave(`away_${i}_c_a`, m[3]);
+        setAndSave(`away_${i}_st_f`, m[4]); setAndSave(`away_${i}_st_a`, m[5]);
+        setAndSave(`away_${i}_sa_f`, m[6]); setAndSave(`away_${i}_sa_a`, m[7]);
       });
+    }
+
+    function setAndSave(id, val) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = val;
+        localStorage.setItem(`app_stat_${id}`, val);
+      }
+    }
+
+    function borrarDatos() {
+      if (confirm("¿Estás seguro de que quieres borrar todos los datos ingresados?")) {
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+          input.value = '';
+          localStorage.removeItem(`app_stat_${input.id}`);
+        });
+        document.getElementById('resultados').innerHTML = "Datos borrados. Ingresa nuevos números para analizar.";
+      }
     }
 
     function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
@@ -172,50 +220,56 @@
 
       const todos = [...h, ...a];
 
-      // --- EVALUACIÓN DE GANADOR / DOBLE OPORTUNIDAD / HÁNDICAP EN 6/6 ---
-
-      // 1. Doble Oportunidad 1X (Local Gana o Empata en sus 3 + Visitante pierde/empata en sus 3)
+      // --- 1. MERCADOS PRINCIPALES ---
       const do_1x_6 = h.filter(x => x.gf >= x.ga).length + a.filter(x => x.ga >= x.gf).length;
-
-      // 2. Doble Oportunidad X2 (Visitante Gana o Empata en sus 3 + Local pierde/empata en sus 3)
       const do_x2_6 = a.filter(x => x.gf >= x.ga).length + h.filter(x => x.ga >= x.gf).length;
-
-      // 3. Hándicap Asiático -0.5 Local / Ganador Local (Local gana directo + Visitante pierde directo)
       const ha_home_minus05_6 = h.filter(x => x.gf > x.ga).length + a.filter(x => x.ga > x.gf).length;
-
-      // 4. Hándicap Asiático -0.5 Visitante / Ganador Visitante (Visitante gana directo + Local pierde directo)
       const ha_away_minus05_6 = a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length;
 
-      // 5. Hándicap Asiático +0.5 Local (Local no pierde + Visitante no gana)
-      const ha_home_plus05_6 = do_1x_6;
-
-      // 6. Hándicap Asiático +0.5 Visitante (Visitante no pierde + Local no gana)
-      const ha_away_plus05_6 = do_x2_6;
-
-      // --- MERCADOS GLOBALES (GOLES, CÓRNERES, REMATES) ---
+      // --- 2. GOLES ---
       const g_over_1_5 = todos.filter(x => (x.gf + x.ga) >= 2).length;
       const g_over_2_5 = todos.filter(x => (x.gf + x.ga) >= 3).length;
       const g_under_2_5 = todos.filter(x => (x.gf + x.ga) <= 2).length;
       const g_under_3_5 = todos.filter(x => (x.gf + x.ga) <= 3).length;
       const btts = todos.filter(x => x.gf > 0 && x.ga > 0).length;
 
-      const c_over_7_5 = todos.filter(x => (x.cf + x.ca) >= 8).length;
-      const c_under_11_5 = todos.filter(x => (x.cf + x.ca) <= 11).length;
-      const homeMoreCorners = h.filter(x => x.cf > x.ca).length + a.filter(x => x.ca < x.cf).length;
+      // --- 3. CÓRNERES (PARÁMETROS EXACTOS) ---
+      // Totales (>6.5 y <13.5)
+      const c_over_6_5 = todos.filter(x => (x.cf + x.ca) > 6.5).length;
+      const c_under_13_5 = todos.filter(x => (x.cf + x.ca) < 13.5).length;
+      // Solitario (>2.5 y <6.5)
+      const c_sol_home_over_2_5 = h.filter(x => x.cf > 2.5).length + a.filter(x => x.ca > 2.5).length;
+      const c_sol_home_under_6_5 = h.filter(x => x.cf < 6.5).length + a.filter(x => x.ca < 6.5).length;
+      const c_sol_away_over_2_5 = a.filter(x => x.cf > 2.5).length + h.filter(x => x.ca > 2.5).length;
+      const c_sol_away_under_6_5 = a.filter(x => x.cf < 6.5).length + h.filter(x => x.ca < 6.5).length;
 
-      const st_over_18 = todos.filter(x => (x.stf + x.sta) >= 18).length;
-      const st_under_26 = todos.filter(x => (x.stf + x.sta) <= 26).length;
-      const sa_over_6 = todos.filter(x => (x.saf + x.saa) >= 7).length;
+      // --- 4. REMATES TOTALES (PARÁMETROS EXACTOS) ---
+      // Totales (>20.5 y <29.5)
+      const st_over_20_5 = todos.filter(x => (x.stf + x.sta) > 20.5).length;
+      const st_under_29_5 = todos.filter(x => (x.stf + x.sta) < 29.5).length;
+      // Solitario (>8.5 y <14.5)
+      const st_sol_home_over_8_5 = h.filter(x => x.stf > 8.5).length + a.filter(x => x.sta > 8.5).length;
+      const st_sol_home_under_14_5 = h.filter(x => x.stf < 14.5).length + a.filter(x => x.sta < 14.5).length;
+      const st_sol_away_over_8_5 = a.filter(x => x.stf > 8.5).length + h.filter(x => x.sta > 8.5).length;
+      const st_sol_away_under_14_5 = a.filter(x => x.stf < 14.5).length + h.filter(x => x.sta < 14.5).length;
 
-      // --- CRUCES CRUZADOS DIRECTOS ---
+      // --- 5. REMATES AL ARCO / SOT (PARÁMETROS EXACTOS) ---
+      // Totales (>6.5 y <10.5)
+      const sa_over_6_5 = todos.filter(x => (x.saf + x.saa) > 6.5).length;
+      const sa_under_10_5 = todos.filter(x => (x.saf + x.saa) < 10.5).length;
+      // Solitario (>2.5 y <6.5)
+      const sa_sol_home_over_2_5 = h.filter(x => x.saf > 2.5).length + a.filter(x => x.saa > 2.5).length;
+      const sa_sol_home_under_6_5 = h.filter(x => x.saf < 6.5).length + a.filter(x => x.saa < 6.5).length;
+      const sa_sol_away_over_2_5 = a.filter(x => x.saf > 2.5).length + h.filter(x => x.saa > 2.5).length;
+      const sa_sol_away_under_6_5 = a.filter(x => x.saf < 6.5).length + h.filter(x => x.saa < 6.5).length;
+
+      // --- 6. CRUCES CRUZADOS DIRECTOS ---
       const cross_vis_score = a.filter(x => x.gf >= 1).length + h.filter(x => x.ga >= 1).length;
       const cross_loc_score = h.filter(x => x.gf >= 1).length + a.filter(x => x.ga >= 1).length;
-      const cross_vis_sot = a.filter(x => x.saf >= 3).length + h.filter(x => x.saa >= 3).length;
-      const cross_loc_sot = h.filter(x => x.saf >= 3).length + a.filter(x => x.saa >= 3).length;
 
       let html = '';
 
-      html += `<div class="section-title">⚖️ Mercado 1X2, Doble Oportunidad y Hándicap Asiático (Combinado 6/6)</div>`;
+      html += `<div class="section-title">⚖️ Mercado 1X2, Doble Oportunidad y HA (Escala 6/6)</div>`;
       html += `<div class="res-grid">`;
       html += generarCard("Local: Gana Partido / HA -0.5", ha_home_minus05_6, 6);
       html += generarCard("Visitante: Gana Partido / HA -0.5", ha_away_minus05_6, 6);
@@ -223,7 +277,7 @@
       html += generarCard("Doble Oportunidad X2 / HA Visitante +0.5", do_x2_6, 6);
       html += `</div>`;
 
-      html += `<div class="section-title">⚽ Goles - Más y Menos (En los 6 Partidos Globales)</div>`;
+      html += `<div class="section-title">⚽ Goles - Más y Menos (Globales 6/6)</div>`;
       html += `<div class="res-grid">`;
       html += generarCard("Más de 1.5 Goles Totales", g_over_1_5, 6);
       html += generarCard("Más de 2.5 Goles Totales", g_over_2_5, 6);
@@ -232,26 +286,40 @@
       html += generarCard("Ambos Anotan (BTTS)", btts, 6);
       html += `</div>`;
 
-      html += `<div class="section-title">🚩 Córneres - Más y Menos (En los 6 Partidos Globales)</div>`;
+      html += `<div class="section-title">🎯 Remates Totales (Totales y En Solitario)</div>`;
       html += `<div class="res-grid">`;
-      html += generarCard("Más de 7.5 Córneres Totales", c_over_7_5, 6);
-      html += generarCard("Menos de 11.5 Córneres Totales", c_under_11_5, 6);
-      html += generarCard("Tendencia: Local saca más córneres", homeMoreCorners, 6);
+      html += generarCard("Más de 20.5 Remates Totales (Partido)", st_over_20_5, 6);
+      html += generarCard("Menos de 29.5 Remates Totales (Partido)", st_under_29_5, 6);
+      html += generarCard("Local en solitario: Más de 8.5 Remates", st_sol_home_over_8_5, 6);
+      html += generarCard("Local en solitario: Menos de 14.5 Remates", st_sol_home_under_14_5, 6);
+      html += generarCard("Visitante en solitario: Más de 8.5 Remates", st_sol_away_over_8_5, 6);
+      html += generarCard("Visitante en solitario: Menos de 14.5 Remates", st_sol_away_under_14_5, 6);
       html += `</div>`;
 
-      html += `<div class="section-title">🎯 Remates Totales y al Arco (+ y -)</div>`;
+      html += `<div class="section-title">🎯 Remates al Arco (Totales y En Solitario)</div>`;
       html += `<div class="res-grid">`;
-      html += generarCard("Más de 17.5 Remates Totales", st_over_18, 6);
-      html += generarCard("Menos de 26.5 Remates Totales", st_under_26, 6);
-      html += generarCard("Más de 6.5 Remates al Arco Totales", sa_over_6, 6);
+      html += generarCard("Más de 6.5 Remates al Arco (Partido)", sa_over_6_5, 6);
+      html += generarCard("Menos de 10.5 Remates al Arco (Partido)", sa_under_10_5, 6);
+      html += generarCard("Local en solitario: Más de 2.5 Remates al Arco", sa_sol_home_over_2_5, 6);
+      html += generarCard("Local en solitario: Menos de 6.5 Remates al Arco", sa_sol_home_under_6_5, 6);
+      html += generarCard("Visitante en solitario: Más de 2.5 Remates al Arco", sa_sol_away_over_2_5, 6);
+      html += generarCard("Visitante en solitario: Menos de 6.5 Remates al Arco", sa_sol_away_under_6_5, 6);
       html += `</div>`;
 
-      html += `<div class="section-title">🔥 Cruces Cruzados Directos (6 Partidos Combinados)</div>`;
+      html += `<div class="section-title">🚩 Córneres (Totales y En Solitario)</div>`;
+      html += `<div class="res-grid">`;
+      html += generarCard("Más de 6.5 Córneres Totales (Partido)", c_over_6_5, 6);
+      html += generarCard("Menos de 13.5 Córneres Totales (Partido)", c_under_13_5, 6);
+      html += generarCard("Local en solitario: Más de 2.5 Córneres", c_sol_home_over_2_5, 6);
+      html += generarCard("Local en solitario: Menos de 6.5 Córneres", c_sol_home_under_6_5, 6);
+      html += generarCard("Visitante en solitario: Más de 2.5 Córneres", c_sol_away_over_2_5, 6);
+      html += generarCard("Visitante en solitario: Menos de 6.5 Córneres", c_sol_away_under_6_5, 6);
+      html += `</div>`;
+
+      html += `<div class="section-title">🔥 Cruces Cruzados Directos</div>`;
       html += `<div class="res-grid">`;
       html += generarCard("Cruce: Visitante anota gol vs Defensiva Local", cross_vis_score, 6);
       html += generarCard("Cruce: Local anota gol vs Defensiva Visitante", cross_loc_score, 6);
-      html += generarCard("Cruce: Visitante remata al arco vs Concesión Local", cross_vis_sot, 6);
-      html += generarCard("Cruce: Local remata al arco vs Concesión Visitante", cross_loc_sot, 6);
       html += `</div>`;
 
       document.getElementById('resultados').innerHTML = html;
