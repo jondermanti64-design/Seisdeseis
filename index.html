@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador Pro - Muestra y Memoria Automática</title>
+  <title>Analizador Pro - Escaneo Automático 6/6</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 1150px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
@@ -30,20 +30,19 @@
     .section-title { color: #facc15; font-size: 16px; margin: 25px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 5px; }
     .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (max-width: 768px) { .res-grid { grid-template-columns: 1fr; } }
-    .res-card { background: #334155; padding: 12px; border-radius: 8px; font-size: 13px; border-left: 5px solid #0284c7; display: flex; justify-content: space-between; align-items: center; }
-    .res-card.perfect { border-left-color: #22c55e; background: #0f291e; }
+    .res-card { background: #334155; padding: 12px; border-radius: 8px; font-size: 13px; border-left: 5px solid #22c55e; display: flex; justify-content: space-between; align-items: center; background: #0f291e; }
     .badge-100 { background: #22c55e; color: #000; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
-    .badge-norm { background: #0284c7; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+    .empty-msg { color: #94a3b8; font-style: italic; font-size: 13px; }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <h2>Analizador Pro de Partidos (Con Guardado Automático)</h2>
+    <h2>Analizador Pro - Escaneo Automático 6/6</h2>
     <div class="subtitle">
       • <strong>Local (Izquierda):</strong> A Favor (Izq) | En Contra (Der)<br>
       • <strong>Visitante (Derecha):</strong> En Contra (Izq) | A Favor (Der)<br>
-      💾 <em>Tus datos se guardan automáticamente. Si cierras la app, seguirán aquí al volver.</em>
+      💾 <em>Memoria automática activa. Escaneo completo de goles desde 0.5 hasta 2.5 y más.</em>
     </div>
 
     <div class="grid">
@@ -61,13 +60,13 @@
     </div>
 
     <div class="btn-container">
-      <button class="btn-main" onclick="ejecutarAnalisisTotal()">Analizar Todos los Mercados</button>
+      <button class="btn-main" onclick="ejecutarAnalisisTotal()">Escanear Mercados 6/6</button>
       <button class="btn-clear" onclick="borrarDatos()">Limpiar Datos</button>
     </div>
   </div>
 
   <div class="card">
-    <h2>Resultados Completos (Escala 6/6)</h2>
+    <h2>Resultados del Escaneo (Sólo aciertos 6/6)</h2>
     <div id="resultados">Ingresa los datos y presiona el botón de análisis.</div>
   </div>
 
@@ -80,7 +79,6 @@
     ];
 
     function renderInputs() {
-      // Local (Favor | Contra)
       let htmlHome = '';
       for (let i = 1; i <= 3; i++) {
         htmlHome += `
@@ -103,7 +101,6 @@
       }
       document.getElementById('home-matches').innerHTML = htmlHome;
 
-      // Visitante (Contra | Favor)
       let htmlAway = '';
       for (let i = 1; i <= 3; i++) {
         htmlAway += `
@@ -136,7 +133,6 @@
     function cargarMemoriaOGuardarDefaults() {
       const inputs = document.querySelectorAll('input[type="number"]');
       let hayDatosPrevios = false;
-
       inputs.forEach(input => {
         const valGuardado = localStorage.getItem(`app_stat_${input.id}`);
         if (valGuardado !== null) {
@@ -144,11 +140,7 @@
           hayDatosPrevios = true;
         }
       });
-
-      // Si es la primera vez que abre la app, carga valores de ejemplo
-      if (!hayDatosPrevios) {
-        cargarDefaults();
-      }
+      if (!hayDatosPrevios) cargarDefaults();
     }
 
     function cargarDefaults() {
@@ -162,7 +154,6 @@
         [2,1,  6,3,  10,12, 5,4],
         [1,0,  5,4,  12,11, 4,4]
       ];
-
       defaultsHome.forEach((m, idx) => {
         const i = idx + 1;
         setAndSave(`home_${i}_g_f`, m[0]); setAndSave(`home_${i}_g_a`, m[1]);
@@ -170,7 +161,6 @@
         setAndSave(`home_${i}_st_f`, m[4]); setAndSave(`home_${i}_st_a`, m[5]);
         setAndSave(`home_${i}_sa_f`, m[6]); setAndSave(`home_${i}_sa_a`, m[7]);
       });
-
       defaultsAway.forEach((m, idx) => {
         const i = idx + 1;
         setAndSave(`away_${i}_g_f`, m[0]); setAndSave(`away_${i}_g_a`, m[1]);
@@ -189,13 +179,12 @@
     }
 
     function borrarDatos() {
-      if (confirm("¿Estás seguro de que quieres borrar todos los datos ingresados?")) {
-        const inputs = document.querySelectorAll('input[type="number"]');
-        inputs.forEach(input => {
+      if (confirm("¿Estás seguro de borrar todos los datos?")) {
+        document.querySelectorAll('input[type="number"]').forEach(input => {
           input.value = '';
           localStorage.removeItem(`app_stat_${input.id}`);
         });
-        document.getElementById('resultados').innerHTML = "Datos borrados. Ingresa nuevos números para analizar.";
+        document.getElementById('resultados').innerHTML = "Datos borrados.";
       }
     }
 
@@ -219,120 +208,99 @@
       }
 
       const todos = [...h, ...a];
+      let aciertos = [];
 
-      // --- 1. MERCADOS PRINCIPALES ---
-      const do_1x_6 = h.filter(x => x.gf >= x.ga).length + a.filter(x => x.ga >= x.gf).length;
-      const do_x2_6 = a.filter(x => x.gf >= x.ga).length + h.filter(x => x.ga >= x.gf).length;
-      const ha_home_minus05_6 = h.filter(x => x.gf > x.ga).length + a.filter(x => x.ga > x.gf).length;
-      const ha_away_minus05_6 = a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length;
+      function comprobar6de6(arrPartidos, condicionFn) {
+        return arrPartidos.filter(condicionFn).length === 6;
+      }
 
-      // --- 2. GOLES ---
-      const g_over_1_5 = todos.filter(x => (x.gf + x.ga) >= 2).length;
-      const g_over_2_5 = todos.filter(x => (x.gf + x.ga) >= 3).length;
-      const g_under_2_5 = todos.filter(x => (x.gf + x.ga) <= 2).length;
-      const g_under_3_5 = todos.filter(x => (x.gf + x.ga) <= 3).length;
-      const btts = todos.filter(x => x.gf > 0 && x.ga > 0).length;
+      // 1. Ganador y Hándicap (3+3)
+      const do_1x = h.filter(x => x.gf >= x.ga).length + a.filter(x => x.ga >= x.gf).length === 6;
+      if (do_1x) aciertos.push("Doble Oportunidad 1X / HA Local +0.5");
 
-      // --- 3. CÓRNERES (PARÁMETROS EXACTOS) ---
-      // Totales (>6.5 y <13.5)
-      const c_over_6_5 = todos.filter(x => (x.cf + x.ca) > 6.5).length;
-      const c_under_13_5 = todos.filter(x => (x.cf + x.ca) < 13.5).length;
-      // Solitario (>2.5 y <6.5)
-      const c_sol_home_over_2_5 = h.filter(x => x.cf > 2.5).length + a.filter(x => x.ca > 2.5).length;
-      const c_sol_home_under_6_5 = h.filter(x => x.cf < 6.5).length + a.filter(x => x.ca < 6.5).length;
-      const c_sol_away_over_2_5 = a.filter(x => x.cf > 2.5).length + h.filter(x => x.ca > 2.5).length;
-      const c_sol_away_under_6_5 = a.filter(x => x.cf < 6.5).length + h.filter(x => x.ca < 6.5).length;
+      const do_x2 = a.filter(x => x.gf >= x.ga).length + h.filter(x => x.ga >= x.gf).length === 6;
+      if (do_x2) aciertos.push("Doble Oportunidad X2 / HA Visitante +0.5");
 
-      // --- 4. REMATES TOTALES (PARÁMETROS EXACTOS) ---
-      // Totales (>20.5 y <29.5)
-      const st_over_20_5 = todos.filter(x => (x.stf + x.sta) > 20.5).length;
-      const st_under_29_5 = todos.filter(x => (x.stf + x.sta) < 29.5).length;
-      // Solitario (>8.5 y <14.5)
-      const st_sol_home_over_8_5 = h.filter(x => x.stf > 8.5).length + a.filter(x => x.sta > 8.5).length;
-      const st_sol_home_under_14_5 = h.filter(x => x.stf < 14.5).length + a.filter(x => x.sta < 14.5).length;
-      const st_sol_away_over_8_5 = a.filter(x => x.stf > 8.5).length + h.filter(x => x.sta > 8.5).length;
-      const st_sol_away_under_14_5 = a.filter(x => x.stf < 14.5).length + h.filter(x => x.sta < 14.5).length;
+      const ha_h_m05 = h.filter(x => x.gf > x.ga).length + a.filter(x => x.ga > x.gf).length === 6;
+      if (ha_h_m05) aciertos.push("Local: Gana Partido / Hándicap Asiático -0.5");
 
-      // --- 5. REMATES AL ARCO / SOT (PARÁMETROS EXACTOS) ---
-      // Totales (>6.5 y <10.5)
-      const sa_over_6_5 = todos.filter(x => (x.saf + x.saa) > 6.5).length;
-      const sa_under_10_5 = todos.filter(x => (x.saf + x.saa) < 10.5).length;
-      // Solitario (>2.5 y <6.5)
-      const sa_sol_home_over_2_5 = h.filter(x => x.saf > 2.5).length + a.filter(x => x.saa > 2.5).length;
-      const sa_sol_home_under_6_5 = h.filter(x => x.saf < 6.5).length + a.filter(x => x.saa < 6.5).length;
-      const sa_sol_away_over_2_5 = a.filter(x => x.saf > 2.5).length + h.filter(x => x.saa > 2.5).length;
-      const sa_sol_away_under_6_5 = a.filter(x => x.saf < 6.5).length + h.filter(x => x.saa < 6.5).length;
+      const ha_a_m05 = a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length === 6;
+      if (ha_a_m05) aciertos.push("Visitante: Gana Partido / Hándicap Asiático -0.5");
 
-      // --- 6. CRUCES CRUZADOS DIRECTOS ---
-      const cross_vis_score = a.filter(x => x.gf >= 1).length + h.filter(x => x.ga >= 1).length;
-      const cross_loc_score = h.filter(x => x.gf >= 1).length + a.filter(x => x.ga >= 1).length;
+      // 2. Goles Totales (Partido)
+      for (let l = 1.5; l <= 4.5; l += 1.0) {
+        if (comprobar6de6(todos, x => (x.gf + x.ga) > l)) aciertos.push(`Más de ${l} Goles Totales`);
+        if (comprobar6de6(todos, x => (x.gf + x.ga) < l + 1)) aciertos.push(`Menos de ${l + 1} Goles Totales`);
+      }
+      if (comprobar6de6(todos, x => x.gf > 0 && x.ga > 0)) aciertos.push("Ambos Anotan (BTTS)");
+
+      // 3. Goles en Solitario (Local y Visitante) - Empezando desde más de 0.5 y menos de 2.5
+      for (let l = 0.5; l <= 2.5; l += 1.0) {
+        if (h.filter(x => x.gf > l).length + a.filter(x => x.ga > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Goles`);
+        if (h.filter(x => x.gf < l + 1).length + a.filter(x => x.ga < l + 1).length === 6) aciertos.push(`Local en solitario: Menos de ${l + 1} Goles`);
+        
+        if (a.filter(x => x.gf > l).length + h.filter(x => x.ga > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Goles`);
+        if (a.filter(x => x.gf < l + 1).length + h.filter(x => x.ga < l + 1).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l + 1} Goles`);
+      }
+
+      // 4. Córneres Totales
+      for (let l = 4.5; l <= 16.5; l += 1.0) {
+        if (comprobar6de6(todos, x => (x.cf + x.ca) > l)) aciertos.push(`Más de ${l} Córneres Totales`);
+        if (comprobar6de6(todos, x => (x.cf + x.ca) < l)) aciertos.push(`Menos de ${l} Córneres Totales`);
+      }
+
+      // 5. Remates Totales (Partido)
+      for (let l = 15.5; l <= 35.5; l += 1.0) {
+        if (comprobar6de6(todos, x => (x.stf + x.sta) > l)) aciertos.push(`Más de ${l} Remates Totales (Partido)`);
+        if (comprobar6de6(todos, x => (x.stf + x.sta) < l)) aciertos.push(`Menos de ${l} Remates Totales (Partido)`);
+      }
+
+      // 6. Remates al Arco (Partido)
+      for (let l = 4.5; l <= 14.5; l += 1.0) {
+        if (comprobar6de6(todos, x => (x.saf + x.saa) > l)) aciertos.push(`Más de ${l} Remates al Arco Totales (Partido)`);
+        if (comprobar6de6(todos, x => (x.saf + x.saa) < l)) aciertos.push(`Menos de ${l} Remates al Arco Totales (Partido)`);
+      }
+
+      // Córneres Solitario
+      for (let l = 2.5; l <= 8.5; l += 1.0) {
+        if (h.filter(x => x.cf > l).length + a.filter(x => x.ca > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Córneres`);
+        if (h.filter(x => x.cf < l).length + a.filter(x => x.ca < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Córneres`);
+        if (a.filter(x => x.cf > l).length + h.filter(x => x.ca > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Córneres`);
+        if (a.filter(x => x.cf < l).length + h.filter(x => x.ca < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Córneres`);
+      }
+
+      // Remates Totales Solitario
+      for (let l = 6.5; l <= 18.5; l += 1.0) {
+        if (h.filter(x => x.stf > l).length + a.filter(x => x.sta > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates`);
+        if (h.filter(x => x.stf < l).length + a.filter(x => x.sta < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Remates`);
+        if (a.filter(x => x.stf > l).length + h.filter(x => x.sta > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates`);
+        if (a.filter(x => x.stf < l).length + h.filter(x => x.sta < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates`);
+      }
+
+      // Remates al Arco Solitario
+      for (let l = 1.5; l <= 7.5; l += 1.0) {
+        if (h.filter(x => x.saf > l).length + a.filter(x => x.saa > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates al Arco`);
+        if (h.filter(x => x.saf < l).length + a.filter(x => x.saa < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Remates al Arco`);
+        if (a.filter(x => x.saf > l).length + h.filter(x => x.saa > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates al Arco`);
+        if (a.filter(x => x.saf < l).length + h.filter(x => x.saa < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates al Arco`);
+      }
 
       let html = '';
-
-      html += `<div class="section-title">⚖️ Mercado 1X2, Doble Oportunidad y HA (Escala 6/6)</div>`;
-      html += `<div class="res-grid">`;
-      html += generarCard("Local: Gana Partido / HA -0.5", ha_home_minus05_6, 6);
-      html += generarCard("Visitante: Gana Partido / HA -0.5", ha_away_minus05_6, 6);
-      html += generarCard("Doble Oportunidad 1X / HA Local +0.5", do_1x_6, 6);
-      html += generarCard("Doble Oportunidad X2 / HA Visitante +0.5", do_x2_6, 6);
-      html += `</div>`;
-
-      html += `<div class="section-title">⚽ Goles - Más y Menos (Globales 6/6)</div>`;
-      html += `<div class="res-grid">`;
-      html += generarCard("Más de 1.5 Goles Totales", g_over_1_5, 6);
-      html += generarCard("Más de 2.5 Goles Totales", g_over_2_5, 6);
-      html += generarCard("Menos de 2.5 Goles Totales", g_under_2_5, 6);
-      html += generarCard("Menos de 3.5 Goles Totales", g_under_3_5, 6);
-      html += generarCard("Ambos Anotan (BTTS)", btts, 6);
-      html += `</div>`;
-
-      html += `<div class="section-title">🎯 Remates Totales (Totales y En Solitario)</div>`;
-      html += `<div class="res-grid">`;
-      html += generarCard("Más de 20.5 Remates Totales (Partido)", st_over_20_5, 6);
-      html += generarCard("Menos de 29.5 Remates Totales (Partido)", st_under_29_5, 6);
-      html += generarCard("Local en solitario: Más de 8.5 Remates", st_sol_home_over_8_5, 6);
-      html += generarCard("Local en solitario: Menos de 14.5 Remates", st_sol_home_under_14_5, 6);
-      html += generarCard("Visitante en solitario: Más de 8.5 Remates", st_sol_away_over_8_5, 6);
-      html += generarCard("Visitante en solitario: Menos de 14.5 Remates", st_sol_away_under_14_5, 6);
-      html += `</div>`;
-
-      html += `<div class="section-title">🎯 Remates al Arco (Totales y En Solitario)</div>`;
-      html += `<div class="res-grid">`;
-      html += generarCard("Más de 6.5 Remates al Arco (Partido)", sa_over_6_5, 6);
-      html += generarCard("Menos de 10.5 Remates al Arco (Partido)", sa_under_10_5, 6);
-      html += generarCard("Local en solitario: Más de 2.5 Remates al Arco", sa_sol_home_over_2_5, 6);
-      html += generarCard("Local en solitario: Menos de 6.5 Remates al Arco", sa_sol_home_under_6_5, 6);
-      html += generarCard("Visitante en solitario: Más de 2.5 Remates al Arco", sa_sol_away_over_2_5, 6);
-      html += generarCard("Visitante en solitario: Menos de 6.5 Remates al Arco", sa_sol_away_under_6_5, 6);
-      html += `</div>`;
-
-      html += `<div class="section-title">🚩 Córneres (Totales y En Solitario)</div>`;
-      html += `<div class="res-grid">`;
-      html += generarCard("Más de 6.5 Córneres Totales (Partido)", c_over_6_5, 6);
-      html += generarCard("Menos de 13.5 Córneres Totales (Partido)", c_under_13_5, 6);
-      html += generarCard("Local en solitario: Más de 2.5 Córneres", c_sol_home_over_2_5, 6);
-      html += generarCard("Local en solitario: Menos de 6.5 Córneres", c_sol_home_under_6_5, 6);
-      html += generarCard("Visitante en solitario: Más de 2.5 Córneres", c_sol_away_over_2_5, 6);
-      html += generarCard("Visitante en solitario: Menos de 6.5 Córneres", c_sol_away_under_6_5, 6);
-      html += `</div>`;
-
-      html += `<div class="section-title">🔥 Cruces Cruzados Directos</div>`;
-      html += `<div class="res-grid">`;
-      html += generarCard("Cruce: Visitante anota gol vs Defensiva Local", cross_vis_score, 6);
-      html += generarCard("Cruce: Local anota gol vs Defensiva Visitante", cross_loc_score, 6);
-      html += `</div>`;
+      if (aciertos.length === 0) {
+        html = `<div class="empty-msg">No hay ningún mercado que cumpla exactamente con el 6/6 (100%) con los datos ingresados.</div>`;
+      } else {
+        html = `<div class="res-grid">`;
+        aciertos.forEach(item => {
+          html += `
+            <div class="res-card">
+              <span><strong>${item}</strong></span>
+              <span class="badge-100">6/6 (100%)</span>
+            </div>`;
+        });
+        html += `</div>`;
+      }
 
       document.getElementById('resultados').innerHTML = html;
-    }
-
-    function generarCard(nombre, count, max) {
-      const pct = Math.round((count / max) * 100);
-      const isPerfect = count === max;
-      return `
-        <div class="res-card ${isPerfect ? 'perfect' : ''}">
-          <span><strong>${nombre}</strong></span>
-          <span class="${isPerfect ? 'badge-100' : 'badge-norm'}">${count}/${max} (${pct}%)</span>
-        </div>`;
     }
 
     renderInputs();
