@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador Pro - 6/6</title>
+  <title>Analizador de Fútbol Pro - Límites Blindados 6/6</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 1150px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 1100px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
     .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
     h2, h3 { color: #38bdf8; margin-top: 0; }
-    .subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 15px; }
+    .subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 15px; line-height: 1.4; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
     
@@ -27,10 +27,9 @@
     .btn-clear { background: #ef4444; color: white; border: none; padding: 14px; flex: 1; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .btn-clear:hover { background: #dc2626; }
     
-    .section-title { color: #facc15; font-size: 16px; margin: 25px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 5px; }
     .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (max-width: 768px) { .res-grid { grid-template-columns: 1fr; } }
-    .res-card { background: #334155; padding: 12px; border-radius: 8px; font-size: 13px; border-left: 5px solid #22c55e; display: flex; justify-content: space-between; align-items: center; background: #0f291e; }
+    .res-card { background: #0f291e; padding: 12px; border-radius: 8px; font-size: 13px; border-left: 5px solid #22c55e; display: flex; justify-content: space-between; align-items: center; border: 1px solid #14532d; }
     .badge-100 { background: #22c55e; color: #000; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
     .empty-msg { color: #94a3b8; font-style: italic; font-size: 13px; }
   </style>
@@ -38,21 +37,18 @@
 <body>
 
   <div class="card">
-    <h2>Analizador Pro - Escaneo 6/6</h2>
+    <h2>Analizador Pro - Límites Blindados 6/6</h2>
     <div class="subtitle">
       • <strong>Local (Izquierda):</strong> A Favor (Izq) | En Contra (Der)<br>
       • <strong>Visitante (Derecha):</strong> En Contra (Izq) | A Favor (Der)<br>
-      💾 <em>Memoria automática activa.</em>
+      💾 <em>Memoria automática activa. Los márgenes de remates están estrictamente blindados a tus topes.</em>
     </div>
 
     <div class="grid">
-      <!-- LOCAL -->
       <div class="col-local">
         <h3 style="color: #38bdf8;">🏠 Equipo Local (En Casa)</h3>
         <div id="home-matches"></div>
       </div>
-      
-      <!-- VISITANTE -->
       <div class="col-visitante">
         <h3 style="color: #f59e0b;">✈️ Equipo Visitante (Fuera)</h3>
         <div id="away-matches"></div>
@@ -60,7 +56,7 @@
     </div>
 
     <div class="btn-container">
-      <button class="btn-main" onclick="ejecutarAnalisisTotal()">Escanear Mercados 6/6</button>
+      <button class="btn-main" onclick="ejecutarAnalisis()">Escanear Mercados 6/6</button>
       <button class="btn-clear" onclick="borrarDatos()">Limpiar Datos</button>
     </div>
   </div>
@@ -190,7 +186,7 @@
 
     function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
 
-    function ejecutarAnalisisTotal() {
+    function ejecutarAnalisis() {
       const h = [], a = [];
       for (let i = 1; i <= 3; i++) {
         h.push({
@@ -214,21 +210,14 @@
         return arrPartidos.filter(condicionFn).length === 6;
       }
 
-      // 1. Ganador y Hándicap (3+3)
-      const do_1x = h.filter(x => x.gf >= x.ga).length + a.filter(x => x.ga >= x.gf).length === 6;
-      if (do_1x) aciertos.push("Doble Oportunidad 1X / HA Local +0.5");
-
-      const do_x2 = a.filter(x => x.gf >= x.ga).length + h.filter(x => x.ga >= x.gf).length === 6;
-      if (do_x2) aciertos.push("Doble Oportunidad X2 / HA Visitante +0.5");
-
-      const ha_h_m05 = h.filter(x => x.gf > x.ga).length + a.filter(x => x.ga > x.gf).length === 6;
-      if (ha_h_m05) aciertos.push("Local: Gana Partido / Hándicap Asiático -0.5");
-
-      const ha_a_m05 = a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length === 6;
-      if (ha_a_m05) aciertos.push("Visitante: Gana Partido / Hándicap Asiático -0.5");
+      // 1. Ganadores y Hándicaps (3+3)
+      if (h.filter(x => x.gf >= x.ga).length + a.filter(x => x.ga >= x.gf).length === 6) aciertos.push("Doble Oportunidad 1X / HA Local +0.5");
+      if (a.filter(x => x.gf >= x.ga).length + h.filter(x => x.ga >= x.gf).length === 6) aciertos.push("Doble Oportunidad X2 / HA Visitante +0.5");
+      if (h.filter(x => x.gf > x.ga).length + a.filter(x => x.ga > x.gf).length === 6) aciertos.push("Local: Gana Partido / Hándicap Asiático -0.5");
+      if (a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length === 6) aciertos.push("Visitante: Gana Partido / Hándicap Asiático -0.5");
 
       // 2. Goles Totales
-      for (let l = 0.5; l <= 4.5; l += 1.0) {
+      for (let l = 1.5; l <= 4.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.gf + x.ga) > l)) aciertos.push(`Más de ${l} Goles Totales`);
         if (comprobar6de6(todos, x => (x.gf + x.ga) < l + 1)) aciertos.push(`Menos de ${l + 1} Goles Totales`);
       }
@@ -242,7 +231,7 @@
         if (a.filter(x => x.gf < l + 1).length + h.filter(x => x.ga < l + 1).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l + 1} Goles`);
       }
 
-      // 3. Córneres Totales y Solitario
+      // 3. Córneres Totales
       for (let l = 2.5; l <= 13.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.cf + x.ca) > l)) aciertos.push(`Más de ${l} Córneres Totales`);
         if (comprobar6de6(todos, x => (x.cf + x.ca) < l + 1)) aciertos.push(`Menos de ${l + 1} Córneres Totales`);
@@ -254,7 +243,7 @@
         if (a.filter(x => x.cf < l + 1).length + h.filter(x => x.ca < l + 1).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l + 1} Córneres`);
       }
 
-      // 4. Remates Totales (Estrictos)
+      // 4. REMATES TOTALES (CANDADO ESTRICTO: TOPE MÁXIMO 28.5 para más / 29.5 para menos)
       for (let l = 20.5; l <= 28.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.stf + x.sta) > l)) aciertos.push(`Más de ${l} Remates Totales (Partido)`);
       }
@@ -262,7 +251,7 @@
         if (comprobar6de6(todos, x => (x.stf + x.sta) < l)) aciertos.push(`Menos de ${l} Remates Totales (Partido)`);
       }
 
-      // Remates Totales Solitario (Estrictos)
+      // Remates Totales Solitario (CANDADO ESTRICTO: TOPE MÁXIMO 13.5 para más / 14.5 para menos)
       for (let l = 8.5; l <= 13.5; l += 1.0) {
         if (h.filter(x => x.stf > l).length + a.filter(x => x.sta > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates`);
         if (a.filter(x => x.stf > l).length + h.filter(x => x.sta > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates`);
@@ -272,7 +261,7 @@
         if (a.filter(x => x.sta < l).length + h.filter(x => x.stf < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates`);
       }
 
-      // 5. Remates al Arco (Estrictos)
+      // 5. REMATES AL ARCO (CANDADO ESTRICTO: TOPE MÁXIMO 9.5 para más / 10.5 para menos)
       for (let l = 6.5; l <= 9.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.saf + x.saa) > l)) aciertos.push(`Más de ${l} Remates al Arco Totales (Partido)`);
       }
@@ -280,7 +269,7 @@
         if (comprobar6de6(todos, x => (x.saf + x.saa) < l)) aciertos.push(`Menos de ${l} Remates al Arco Totales (Partido)`);
       }
 
-      // Remates al Arco Solitario (Estrictos)
+      // Remates al Arco Solitario (CANDADO ESTRICTO: TOPE MÁXIMO 5.5 para más / 6.5 para menos)
       for (let l = 2.5; l <= 5.5; l += 1.0) {
         if (h.filter(x => x.saf > l).length + a.filter(x => x.saa > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates al Arco`);
         if (a.filter(x => x.saf > l).length + h.filter(x => x.saa > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates al Arco`);
