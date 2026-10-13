@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analizador Pro: Patrones y Cruces 6/6</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 1050px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
+    .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
+    h2, h3 { color: #38bdf8; margin-top: 0; }
+    .subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    .match-box { background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #1e293b; }
+    .stat-row { display: grid; grid-template-columns: 130px 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 13px; }
+    input[type="number"] { background: #334155; color: #fff; border: 1px solid #475569; padding: 6px; border-radius: 4px; text-align: center; width: 100%; }
+    button { background: #0284c7; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #0369a1; }
+    .section-title { color: #facc15; font-size: 16px; margin: 20px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+    .res-card { background: #334155; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; border-left: 5px solid #0284c7; display: flex; justify-content: space-between; align-items: center; }
+    .res-card.perfect { border-left-color: #22c55e; background: #0f291e; }
+    .badge-100 { background: #22c55e; color: #000; font-weight: bold; padding: 3px 10px; border-radius: 4px; font-size: 12px; }
+    .badge-norm { background: #0284c7; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Analizador Estadístico de Partidos (Contexto por Niveles)</h2>
+    <div class="subtitle">
+      • <strong>Local:</strong> Últimos 3 partidos jugando <em>en casa</em> contra rivales de similar nivel.<br>
+      • <strong>Visitante:</strong> Últimos 3 partidos jugando <em>fuera</em> contra rivales de similar nivel.
+    </div>
+
+    <div class="grid">
+      <div>
+        <h3>Equipo Local (3 Partidos en Casa)</h3>
+        <div id="home-matches"></div>
+      </div>
+      <div>
+        <h3>Equipo Visitante (3 Partidos Fuera)</h3>
+        <div id="away-matches"></div>
+      </div>
+    </div>
+    <button onclick="ejecutarAnalisis()">Analizar Patrones Individuales y Globales 6/6</button>
+  </div>
+
+  <div class="card">
+    <h2>Resultados del Análisis</h2>
+    <div id="resultados">Ingresa los datos y presiona el botón de análisis.</div>
+  </div>
+
+  <script>
+    const metrics = [
+      { id: 'g', name: 'Goles' },
+      { id: 'c', name: 'Córneres' },
+      { id: 'st', name: 'Remates Totales' },
+      { id: 'sa', name: 'Remates al Arco' }
+    ];
+
+    function renderInputs() {
+      ['home', 'away'].forEach(team => {
+        let html = '';
+        for (let i = 1; i <= 3; i++) {
+          html += `<div class="match-box"><strong>Partido ${i}</strong>`;
+          metrics.forEach(m => {
+            html += `
+              <div class="stat-row">
+                <span>${m.name}:</span>
+                <input type="number" id="${team}_${i}_${m.id}_f" placeholder="A Favor">
+                <input type="number" id="${team}_${i}_${m.id}_a" placeholder="En Contra">
+              </div>`;
+          });
+          html += `</div>`;
+        }
+        document.getElementById(`${team}-matches`).innerHTML = html;
+      });
+      cargarDefaults();
+    }
+
+    function cargarDefaults() {
+      const defaultsHome = [
+        [1,0,  6,3,  14,8,  5,2],
+        [2,1,  5,4,  12,10, 6,4],
+        [2,0,  7,2,  15,6,  7,3]
+      ];
+      const defaultsAway = [
+        [1,2,  5,4,  11,13, 4,5],
+        [2,1,  6,3,  10,12, 5,4],
+        [1,0,  5,4,  12,11, 4,4]
+      ];
+
+      defaultsHome.forEach((m, idx) => {
+        const i = idx + 1;
+        document.getElementById(`home_${i}_g_f`).value = m[0]; document.getElementById(`home_${i}_g_a`).value = m[1];
+        document.getElementById(`home_${i}_c_f`).value = m[2]; document.getElementById(`home_${i}_c_a`).value = m[3];
+        document.getElementById(`home_${i}_st_f`).value = m[4]; document.getElementById(`home_${i}_st_a`).value = m[5];
+        document.getElementById(`home_${i}_sa_f`).value = m[6]; document.getElementById(`home_${i}_sa_a`).value = m[7];
+      });
+
+      defaultsAway.forEach((m, idx) => {
+        const i = idx + 1;
+        document.getElementById(`away_${i}_g_f`).value = m[0]; document.getElementById(`away_${i}_g_a`).value = m[1];
+        document.getElementById(`away_${i}_c_f`).value = m[2]; document.getElementById(`away_${i}_c_a`).value = m[3];
+        document.getElementById(`away_${i}_st_f`).value = m[4]; document.getElementById(`away_${i}_st_a`).value = m[5];
+        document.getElementById(`away_${i}_sa_f`).value = m[6]; document.getElementById(`away_${i}_sa_a`).value = m[7];
+      });
+    }
+
+    function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+    function ejecutarAnalisis() {
+      const h = [], a = [];
+      for (let i = 1; i <= 3; i++) {
+        h.push({
+          gf: getVal(`home_${i}_g_f`), ga: getVal(`home_${i}_g_a`),
+          cf: getVal(`home_${i}_c_f`), ca: getVal(`home_${i}_c_a`),
+          stf: getVal(`home_${i}_st_f`), sta: getVal(`home_${i}_st_a`),
+          saf: getVal(`home_${i}_sa_f`), saa: getVal(`home_${i}_sa_a`)
+        });
+        a.push({
+          gf: getVal(`away_${i}_g_f`), ga: getVal(`away_${i}_g_a`),
+          cf: getVal(`away_${i}_c_f`), ca: getVal(`away_${i}_c_a`),
+          stf: getVal(`away_${i}_st_f`), sta: getVal(`away_${i}_st_a`),
+          saf: getVal(`away_${i}_sa_f`), saa: getVal(`away_${i}_sa_a`)
+        });
+      }
+
+      // 1. PATRONES INDIVIDUALES (3/3 partidos de cada equipo)
+      const ind_home_score = h.filter(x => x.gf >= 1).length;
+      const ind_away_score = a.filter(x => x.gf >= 1).length;
+      const ind_home_sot = h.filter(x => x.saf >= 4).length;
+      const ind_away_sot = a.filter(x => x.saf >= 4).length;
+
+      // 2. CRUCES CRUZADOS Y GLOBALES (6 partidos en total combinando local en casa + visitante fuera)
+      // Ejemplo: Visitante mete remates al arco (a.saf) y Local permite remates en contra (h.saa)
+      const c_vis_sot_vs_h_concede = a.filter(x => x.saf >= 4).length + h.filter(x => x.saa >= 4).length;
+      const c_loc_sot_vs_a_concede = h.filter(x => x.saf >= 4).length + a.filter(x => x.saa >= 4).length;
+
+      const c_vis_marca_vs_h_def = a.filter(x => x.gf >= 1).length + h.filter(x => x.ga >= 1).length;
+      const c_loc_marca_vs_a_def = h.filter(x => x.gf >= 1).length + a.filter(x => x.ga >= 1).length;
+
+      const c_vis_corners = a.filter(x => x.cf >= 4).length + h.filter(x => x.ca >= 4).length;
+      const c_loc_corners = h.filter(x => x.cf >= 4).length + a.filter(x => x.ca >= 4).length;
+
+      const todos = [...h, ...a];
+      const global_total_corners = todos.filter(x => (x.cf + x.ca) >= 8).length;
+      const global_total_shots = todos.filter(x => (x.stf + x.sta) >= 18).length;
+
+      let html = '';
+
+      // Sección Individuales
+      html += `<div class="section-title">📊 Análisis Individuales (Por Bloque de 3 Partidos)</div>`;
+      html += generarCard("Local (en casa): Anota gol en sus 3 partidos", ind_home_score, 3);
+      html += generarCard("Visitante (fuera): Anota gol en sus 3 partidos", ind_away_score, 3);
+      html += generarCard("Local (en casa): Hace +3.5 remates al arco en sus 3 partidos", ind_home_sot, 3);
+      html += generarCard("Visitante (fuera): Hace +3.5 remates al arco en sus 3 partidos", ind_away_sot, 3);
+
+      // Sección Globales / Cruces 6/6
+      html += `<div class="section-title">🔥 Cruces Cruzados y Globales (6 Partidos Combinados)</div>`;
+      html += generarCard("Cruce: Visitante hace +3.5 remates al arco vs Permisividad del Local", c_vis_sot_vs_h_concede, 6);
+      html += generarCard("Cruce: Local hace +3.5 remates al arco vs Permisividad del Visitante", c_loc_sot_vs_a_concede, 6);
+      html += generarCard("Cruce: Visitante anota gol (+0.5) vs Defensiva del Local", c_vis_marca_vs_h_def, 6);
+      html += generarCard("Cruce: Local anota gol (+0.5) vs Defensiva del Visitante", c_loc_marca_vs_a_def, 6);
+      html += generarCard("Cruce: Visitante fuerza córneres vs Concesión del Local", c_vis_corners, 6);
+      html += generarCard("Cruce: Local fuerza córneres vs Concesión del Visitante", c_loc_corners, 6);
+      html += generarCard("Global 6 Partidos: Partidos totales con +7.5 Córneres combinados", global_total_corners, 6);
+      html += generarCard("Global 6 Partidos: Partidos totales con +17.5 Remates Totales combinados", global_total_shots, 6);
+
+      document.getElementById('resultados').innerHTML = html;
+    }
+
+    function generarCard(nombre, count, max) {
+      const pct = Math.round((count / max) * 100);
+      const isPerfect = count === max;
+      return `
+        <div class="res-card ${isPerfect ? 'perfect' : ''}">
+          <span><strong>${nombre}</strong></span>
+          <span class="${isPerfect ? 'badge-100' : 'badge-norm'}">${count}/${max} (${pct}%)</span>
+        </div>`;
+    }
+
+    renderInputs();
+  </script>
+</body>
+</html>
