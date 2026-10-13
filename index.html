@@ -180,7 +180,7 @@
 
     function borrarDatos() {
       if (confirm("¿Estás seguro de borrar todos los datos?")) {
-        document.querySelectorAll('input[type="number"]ফরমinput => {
+        document.querySelectorAll('input[type="number"]').forEach(input => {
           input.value = '';
           localStorage.removeItem(`app_stat_${input.id}`);
         });
@@ -227,14 +227,14 @@
       const ha_a_m05 = a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length === 6;
       if (ha_a_m05) aciertos.push("Visitante: Gana Partido / Hándicap Asiático -0.5");
 
-      // 2. Goles Totales (Libre / Estándar)
+      // 2. Goles Totales
       for (let l = 0.5; l <= 4.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.gf + x.ga) > l)) aciertos.push(`Más de ${l} Goles Totales`);
         if (comprobar6de6(todos, x => (x.gf + x.ga) < l + 1)) aciertos.push(`Menos de ${l + 1} Goles Totales`);
       }
       if (comprobar6de6(todos, x => x.gf > 0 && x.ga > 0)) aciertos.push("Ambos Anotan (BTTS)");
 
-      // Goles Solitario (Libre / Estándar: más de 0.5, menos de 2.5, etc.)
+      // Goles Solitario
       for (let l = 0.5; l <= 2.5; l += 1.0) {
         if (h.filter(x => x.gf > l).length + a.filter(x => x.ga > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Goles`);
         if (a.filter(x => x.gf > l).length + h.filter(x => x.ga > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Goles`);
@@ -242,19 +242,19 @@
         if (a.filter(x => x.gf < l + 1).length + h.filter(x => x.ga < l + 1).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l + 1} Goles`);
       }
 
-      // 3. Córneres Totales y Solitario (Libre / Estándar)
+      // 3. Córneres Totales y Solitario
       for (let l = 2.5; l <= 13.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.cf + x.ca) > l)) aciertos.push(`Más de ${l} Córneres Totales`);
         if (comprobar6de6(todos, x => (x.cf + x.ca) < l + 1)) aciertos.push(`Menos de ${l + 1} Córneres Totales`);
       }
       for (let l = 2.5; l <= 6.5; l += 1.0) {
         if (h.filter(x => x.cf > l).length + a.filter(x => x.ca > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Córneres`);
-        if (a.filter(x => x.cf < l + 1).length + a.filter(x => x.ca < l + 1).length === 6) aciertos.push(`Local en solitario: Menos de ${l + 1} Córneres`);
+        if (h.filter(x => x.cf < l + 1).length + a.filter(x => x.ca < l + 1).length === 6) aciertos.push(`Local en solitario: Menos de ${l + 1} Córneres`);
         if (a.filter(x => x.cf > l).length + h.filter(x => x.ca > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Córneres`);
         if (a.filter(x => x.cf < l + 1).length + h.filter(x => x.ca < l + 1).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l + 1} Córneres`);
       }
 
-      // 4. REMATES TOTALES (TUS PARÁMETROS ESTRICTOS: Más de 20.5 hacia arriba / Menos de 29.5 hacia abajo)
+      // 4. Remates Totales (Estrictos)
       for (let l = 20.5; l <= 28.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.stf + x.sta) > l)) aciertos.push(`Más de ${l} Remates Totales (Partido)`);
       }
@@ -262,7 +262,7 @@
         if (comprobar6de6(todos, x => (x.stf + x.sta) < l)) aciertos.push(`Menos de ${l} Remates Totales (Partido)`);
       }
 
-      // Remates Totales Solitario (Tus parámetros estrictos: Más de 8.5 hacia arriba / Menos de 14.5 hacia abajo)
+      // Remates Totales Solitario (Estrictos)
       for (let l = 8.5; l <= 13.5; l += 1.0) {
         if (h.filter(x => x.stf > l).length + a.filter(x => x.sta > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates`);
         if (a.filter(x => x.stf > l).length + h.filter(x => x.sta > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates`);
@@ -272,7 +272,7 @@
         if (a.filter(x => x.sta < l).length + h.filter(x => x.stf < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates`);
       }
 
-      // 5. REMATES AL ARCO / SOT (TUS PARÁMETROS ESTRICTOS: Más de 6.5 hacia arriba / Menos de 10.5 hacia abajo)
+      // 5. Remates al Arco (Estrictos)
       for (let l = 6.5; l <= 9.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.saf + x.saa) > l)) aciertos.push(`Más de ${l} Remates al Arco Totales (Partido)`);
       }
@@ -280,7 +280,7 @@
         if (comprobar6de6(todos, x => (x.saf + x.saa) < l)) aciertos.push(`Menos de ${l} Remates al Arco Totales (Partido)`);
       }
 
-      // Remates al Arco Solitario (Tus parámetros estrictos: Más de 2.5 hacia arriba / Menos de 6.5 hacia abajo)
+      // Remates al Arco Solitario (Estrictos)
       for (let l = 2.5; l <= 5.5; l += 1.0) {
         if (h.filter(x => x.saf > l).length + a.filter(x => x.saa > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates al Arco`);
         if (a.filter(x => x.saf > l).length + h.filter(x => x.saa > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates al Arco`);
