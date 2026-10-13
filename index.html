@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador Pro: Mercados, Hándicap y Cruces 6/6</title>
+  <title>Analizador Pro: Todos los Mercados en 6/6</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 1150px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
@@ -17,10 +17,7 @@
     .col-visitante { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #f59e0b; }
     
     .match-box { background: #1e293b; padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #334155; }
-    
-    /* Cabeceras de columnas */
     .header-labels { display: grid; grid-template-columns: 100px 1fr 1fr; gap: 6px; margin-bottom: 6px; font-size: 11px; font-weight: bold; text-align: center; }
-    
     .stat-row { display: grid; grid-template-columns: 100px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 6px; font-size: 12px; }
     input[type="number"] { background: #334155; color: #fff; border: 1px solid #475569; padding: 6px; border-radius: 4px; text-align: center; width: 100%; }
     
@@ -39,31 +36,31 @@
 <body>
 
   <div class="card">
-    <h2>Analizador Pro: Mercados, Hándicap y Cruces 6/6</h2>
+    <h2>Analizador Pro: Todos los Mercados evaluados en 6/6</h2>
     <div class="subtitle">
       • <strong>Local (Izquierda):</strong> A Favor (Izq) | En Contra (Der)<br>
-      • <strong>Visitante (Derecha):</strong> En Contra (Izq) | A Favor (Der) <em>(Formato estándar de estadísticas)</em>
+      • <strong>Visitante (Derecha):</strong> En Contra (Izq) | A Favor (Der)
     </div>
 
     <div class="grid">
-      <!-- LOCAL - IZQUIERDA -->
+      <!-- LOCAL -->
       <div class="col-local">
         <h3 style="color: #38bdf8;">🏠 Equipo Local (En Casa)</h3>
         <div id="home-matches"></div>
       </div>
       
-      <!-- VISITANTE - DERECHA (INVERTIDO: En Contra | A Favor) -->
+      <!-- VISITANTE -->
       <div class="col-visitante">
         <h3 style="color: #f59e0b;">✈️ Equipo Visitante (Fuera)</h3>
         <div id="away-matches"></div>
       </div>
     </div>
 
-    <button onclick="ejecutarAnalisisTotal()">Analizar Todos los Mercados y Hándicap</button>
+    <button onclick="ejecutarAnalisisTotal()">Analizar Todos los Mercados en 6/6</button>
   </div>
 
   <div class="card">
-    <h2>Resultados Completos</h2>
+    <h2>Resultados Completos (Escala 6/6)</h2>
     <div id="resultados">Ingresa los datos y presiona el botón de análisis.</div>
   </div>
 
@@ -76,7 +73,7 @@
     ];
 
     function renderInputs() {
-      // 1. RENDERIZAR LOCAL (A Favor a la izquierda, En Contra a la derecha)
+      // Local (Favor | Contra)
       let htmlHome = '';
       for (let i = 1; i <= 3; i++) {
         htmlHome += `
@@ -99,7 +96,7 @@
       }
       document.getElementById('home-matches').innerHTML = htmlHome;
 
-      // 2. RENDERIZAR VISITANTE (En Contra a la izquierda, A Favor a la DERECHA)
+      // Visitante (Contra | Favor)
       let htmlAway = '';
       for (let i = 1; i <= 3; i++) {
         htmlAway += `
@@ -175,11 +172,27 @@
 
       const todos = [...h, ...a];
 
-      const handicapHomeMinus05 = h.filter(x => (x.gf - x.ga) > 0).length;
-      const handicapHome00 = h.filter(x => (x.gf - x.ga) >= 0).length;
-      const handicapAwayPlus05 = a.filter(x => (x.ga - x.gf) <= 0).length;
-      const handicapAwayMinus05 = a.filter(x => (x.gf - x.ga) > 0).length;
+      // --- EVALUACIÓN DE GANADOR / DOBLE OPORTUNIDAD / HÁNDICAP EN 6/6 ---
 
+      // 1. Doble Oportunidad 1X (Local Gana o Empata en sus 3 + Visitante pierde/empata en sus 3)
+      const do_1x_6 = h.filter(x => x.gf >= x.ga).length + a.filter(x => x.ga >= x.gf).length;
+
+      // 2. Doble Oportunidad X2 (Visitante Gana o Empata en sus 3 + Local pierde/empata en sus 3)
+      const do_x2_6 = a.filter(x => x.gf >= x.ga).length + h.filter(x => x.ga >= x.gf).length;
+
+      // 3. Hándicap Asiático -0.5 Local / Ganador Local (Local gana directo + Visitante pierde directo)
+      const ha_home_minus05_6 = h.filter(x => x.gf > x.ga).length + a.filter(x => x.ga > x.gf).length;
+
+      // 4. Hándicap Asiático -0.5 Visitante / Ganador Visitante (Visitante gana directo + Local pierde directo)
+      const ha_away_minus05_6 = a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length;
+
+      // 5. Hándicap Asiático +0.5 Local (Local no pierde + Visitante no gana)
+      const ha_home_plus05_6 = do_1x_6;
+
+      // 6. Hándicap Asiático +0.5 Visitante (Visitante no pierde + Local no gana)
+      const ha_away_plus05_6 = do_x2_6;
+
+      // --- MERCADOS GLOBALES (GOLES, CÓRNERES, REMATES) ---
       const g_over_1_5 = todos.filter(x => (x.gf + x.ga) >= 2).length;
       const g_over_2_5 = todos.filter(x => (x.gf + x.ga) >= 3).length;
       const g_under_2_5 = todos.filter(x => (x.gf + x.ga) <= 2).length;
@@ -194,6 +207,7 @@
       const st_under_26 = todos.filter(x => (x.stf + x.sta) <= 26).length;
       const sa_over_6 = todos.filter(x => (x.saf + x.saa) >= 7).length;
 
+      // --- CRUCES CRUZADOS DIRECTOS ---
       const cross_vis_score = a.filter(x => x.gf >= 1).length + h.filter(x => x.ga >= 1).length;
       const cross_loc_score = h.filter(x => x.gf >= 1).length + a.filter(x => x.ga >= 1).length;
       const cross_vis_sot = a.filter(x => x.saf >= 3).length + h.filter(x => x.saa >= 3).length;
@@ -201,12 +215,12 @@
 
       let html = '';
 
-      html += `<div class="section-title">⚖️ Mercado 1X2 y Hándicap Asiático (Por Bloque de 3)</div>`;
+      html += `<div class="section-title">⚖️ Mercado 1X2, Doble Oportunidad y Hándicap Asiático (Combinado 6/6)</div>`;
       html += `<div class="res-grid">`;
-      html += generarCard("Local: Hándicap Asiático -0.5 (Gana)", handicapHomeMinus05, 3);
-      html += generarCard("Visitante: Hándicap Asiático +0.5 (No pierde)", handicapAwayPlus05, 3);
-      html += generarCard("Local: Hándicap Asiático 0.0 / Sin Empate (DNB)", handicapHome00, 3);
-      html += generarCard("Visitante: Hándicap Asiático -0.5 (Gana fuera)", handicapAwayMinus05, 3);
+      html += generarCard("Local: Gana Partido / HA -0.5", ha_home_minus05_6, 6);
+      html += generarCard("Visitante: Gana Partido / HA -0.5", ha_away_minus05_6, 6);
+      html += generarCard("Doble Oportunidad 1X / HA Local +0.5", do_1x_6, 6);
+      html += generarCard("Doble Oportunidad X2 / HA Visitante +0.5", do_x2_6, 6);
       html += `</div>`;
 
       html += `<div class="section-title">⚽ Goles - Más y Menos (En los 6 Partidos Globales)</div>`;
