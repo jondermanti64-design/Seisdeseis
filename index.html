@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador Pro - Escaneo Automático 6/6</title>
+  <title>Analizador Pro - 6/6</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 1150px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
@@ -38,11 +38,11 @@
 <body>
 
   <div class="card">
-    <h2>Analizador Pro - Escaneo Automático 6/6</h2>
+    <h2>Analizador Pro - Escaneo 6/6</h2>
     <div class="subtitle">
       • <strong>Local (Izquierda):</strong> A Favor (Izq) | En Contra (Der)<br>
       • <strong>Visitante (Derecha):</strong> En Contra (Izq) | A Favor (Der)<br>
-      💾 <em>Memoria automática activa. Escaneo completo de goles desde 0.5 hasta 2.5 y más.</em>
+      💾 <em>Memoria automática activa.</em>
     </div>
 
     <div class="grid">
@@ -66,7 +66,7 @@
   </div>
 
   <div class="card">
-    <h2>Resultados del Escaneo (Sólo aciertos 6/6)</h2>
+    <h2>Resultados del Escaneo</h2>
     <div id="resultados">Ingresa los datos y presiona el botón de análisis.</div>
   </div>
 
@@ -180,7 +180,7 @@
 
     function borrarDatos() {
       if (confirm("¿Estás seguro de borrar todos los datos?")) {
-        document.querySelectorAll('input[type="number"]').forEach(input => {
+        document.querySelectorAll('input[type="number"]ফরমinput => {
           input.value = '';
           localStorage.removeItem(`app_stat_${input.id}`);
         });
@@ -227,62 +227,67 @@
       const ha_a_m05 = a.filter(x => x.gf > x.ga).length + h.filter(x => x.ga > x.gf).length === 6;
       if (ha_a_m05) aciertos.push("Visitante: Gana Partido / Hándicap Asiático -0.5");
 
-      // 2. Goles Totales (Partido)
-      for (let l = 1.5; l <= 4.5; l += 1.0) {
+      // 2. Goles Totales (Libre / Estándar)
+      for (let l = 0.5; l <= 4.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.gf + x.ga) > l)) aciertos.push(`Más de ${l} Goles Totales`);
         if (comprobar6de6(todos, x => (x.gf + x.ga) < l + 1)) aciertos.push(`Menos de ${l + 1} Goles Totales`);
       }
       if (comprobar6de6(todos, x => x.gf > 0 && x.ga > 0)) aciertos.push("Ambos Anotan (BTTS)");
 
-      // 3. Goles en Solitario (Local y Visitante) - Empezando desde más de 0.5 y menos de 2.5
+      // Goles Solitario (Libre / Estándar: más de 0.5, menos de 2.5, etc.)
       for (let l = 0.5; l <= 2.5; l += 1.0) {
         if (h.filter(x => x.gf > l).length + a.filter(x => x.ga > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Goles`);
-        if (h.filter(x => x.gf < l + 1).length + a.filter(x => x.ga < l + 1).length === 6) aciertos.push(`Local en solitario: Menos de ${l + 1} Goles`);
-        
         if (a.filter(x => x.gf > l).length + h.filter(x => x.ga > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Goles`);
+        if (h.filter(x => x.gf < l + 1).length + a.filter(x => x.ga < l + 1).length === 6) aciertos.push(`Local en solitario: Menos de ${l + 1} Goles`);
         if (a.filter(x => x.gf < l + 1).length + h.filter(x => x.ga < l + 1).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l + 1} Goles`);
       }
 
-      // 4. Córneres Totales
-      for (let l = 4.5; l <= 16.5; l += 1.0) {
+      // 3. Córneres Totales y Solitario (Libre / Estándar)
+      for (let l = 2.5; l <= 13.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.cf + x.ca) > l)) aciertos.push(`Más de ${l} Córneres Totales`);
-        if (comprobar6de6(todos, x => (x.cf + x.ca) < l)) aciertos.push(`Menos de ${l} Córneres Totales`);
+        if (comprobar6de6(todos, x => (x.cf + x.ca) < l + 1)) aciertos.push(`Menos de ${l + 1} Córneres Totales`);
+      }
+      for (let l = 2.5; l <= 6.5; l += 1.0) {
+        if (h.filter(x => x.cf > l).length + a.filter(x => x.ca > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Córneres`);
+        if (a.filter(x => x.cf < l + 1).length + a.filter(x => x.ca < l + 1).length === 6) aciertos.push(`Local en solitario: Menos de ${l + 1} Córneres`);
+        if (a.filter(x => x.cf > l).length + h.filter(x => x.ca > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Córneres`);
+        if (a.filter(x => x.cf < l + 1).length + h.filter(x => x.ca < l + 1).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l + 1} Córneres`);
       }
 
-      // 5. Remates Totales (Partido)
-      for (let l = 15.5; l <= 35.5; l += 1.0) {
+      // 4. REMATES TOTALES (TUS PARÁMETROS ESTRICTOS: Más de 20.5 hacia arriba / Menos de 29.5 hacia abajo)
+      for (let l = 20.5; l <= 28.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.stf + x.sta) > l)) aciertos.push(`Más de ${l} Remates Totales (Partido)`);
+      }
+      for (let l = 29.5; l >= 21.5; l -= 1.0) {
         if (comprobar6de6(todos, x => (x.stf + x.sta) < l)) aciertos.push(`Menos de ${l} Remates Totales (Partido)`);
       }
 
-      // 6. Remates al Arco (Partido)
-      for (let l = 4.5; l <= 14.5; l += 1.0) {
+      // Remates Totales Solitario (Tus parámetros estrictos: Más de 8.5 hacia arriba / Menos de 14.5 hacia abajo)
+      for (let l = 8.5; l <= 13.5; l += 1.0) {
+        if (h.filter(x => x.stf > l).length + a.filter(x => x.sta > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates`);
+        if (a.filter(x => x.stf > l).length + h.filter(x => x.sta > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates`);
+      }
+      for (let l = 14.5; l >= 9.5; l -= 1.0) {
+        if (h.filter(x => x.stf < l).length + a.filter(x => x.sta < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Remates`);
+        if (a.filter(x => x.sta < l).length + h.filter(x => x.stf < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates`);
+      }
+
+      // 5. REMATES AL ARCO / SOT (TUS PARÁMETROS ESTRICTOS: Más de 6.5 hacia arriba / Menos de 10.5 hacia abajo)
+      for (let l = 6.5; l <= 9.5; l += 1.0) {
         if (comprobar6de6(todos, x => (x.saf + x.saa) > l)) aciertos.push(`Más de ${l} Remates al Arco Totales (Partido)`);
+      }
+      for (let l = 10.5; l >= 7.5; l -= 1.0) {
         if (comprobar6de6(todos, x => (x.saf + x.saa) < l)) aciertos.push(`Menos de ${l} Remates al Arco Totales (Partido)`);
       }
 
-      // Córneres Solitario
-      for (let l = 2.5; l <= 8.5; l += 1.0) {
-        if (h.filter(x => x.cf > l).length + a.filter(x => x.ca > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Córneres`);
-        if (h.filter(x => x.cf < l).length + a.filter(x => x.ca < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Córneres`);
-        if (a.filter(x => x.cf > l).length + h.filter(x => x.ca > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Córneres`);
-        if (a.filter(x => x.cf < l).length + h.filter(x => x.ca < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Córneres`);
-      }
-
-      // Remates Totales Solitario
-      for (let l = 6.5; l <= 18.5; l += 1.0) {
-        if (h.filter(x => x.stf > l).length + a.filter(x => x.sta > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates`);
-        if (h.filter(x => x.stf < l).length + a.filter(x => x.sta < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Remates`);
-        if (a.filter(x => x.stf > l).length + h.filter(x => x.sta > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates`);
-        if (a.filter(x => x.stf < l).length + h.filter(x => x.sta < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates`);
-      }
-
-      // Remates al Arco Solitario
-      for (let l = 1.5; l <= 7.5; l += 1.0) {
+      // Remates al Arco Solitario (Tus parámetros estrictos: Más de 2.5 hacia arriba / Menos de 6.5 hacia abajo)
+      for (let l = 2.5; l <= 5.5; l += 1.0) {
         if (h.filter(x => x.saf > l).length + a.filter(x => x.saa > l).length === 6) aciertos.push(`Local en solitario: Más de ${l} Remates al Arco`);
-        if (h.filter(x => x.saf < l).length + a.filter(x => x.saa < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Remates al Arco`);
         if (a.filter(x => x.saf > l).length + h.filter(x => x.saa > l).length === 6) aciertos.push(`Visitante en solitario: Más de ${l} Remates al Arco`);
-        if (a.filter(x => x.saf < l).length + h.filter(x => x.saa < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates al Arco`);
+      }
+      for (let l = 6.5; l >= 3.5; l -= 1.0) {
+        if (h.filter(x => x.saf < l).length + a.filter(x => x.saa < l).length === 6) aciertos.push(`Local en solitario: Menos de ${l} Remates al Arco`);
+        if (a.filter(x => x.saa < l).length + h.filter(x => x.saf < l).length === 6) aciertos.push(`Visitante en solitario: Menos de ${l} Remates al Arco`);
       }
 
       let html = '';
