@@ -3,51 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador Pro: Patrones y Cruces 6/6</title>
+  <title>Analizador Pro: Mercados, Hándicap y Cruces 6/6</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 1050px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 1150px; margin: 20px auto; padding: 0 15px; background: #0f172a; color: #f8fafc; }
     .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
     h2, h3 { color: #38bdf8; margin-top: 0; }
     .subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 15px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
-    .match-box { background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #1e293b; }
-    .stat-row { display: grid; grid-template-columns: 130px 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 13px; }
-    input[type="number"] { background: #334155; color: #fff; border: 1px solid #475569; padding: 6px; border-radius: 4px; text-align: center; width: 100%; }
-    button { background: #0284c7; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+    
+    /* Columnas diferenciadas para Local (Izquierda) y Visitante (Derecha) */
+    .col-local { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #0284c7; }
+    .col-visitante { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #f59e0b; }
+    
+    .match-box { background: #1e293b; padding: 10px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #334155; }
+    .stat-row { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 5px; font-size: 12px; }
+    input[type="number"] { background: #334155; color: #fff; border: 1px solid #475569; padding: 5px; border-radius: 4px; text-align: center; width: 100%; }
+    
+    button { background: #0284c7; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; margin-top: 15px; }
     button:hover { background: #0369a1; }
-    .section-title { color: #facc15; font-size: 16px; margin: 20px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 5px; }
-    .res-card { background: #334155; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; border-left: 5px solid #0284c7; display: flex; justify-content: space-between; align-items: center; }
+    
+    .section-title { color: #facc15; font-size: 16px; margin: 25px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+    .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 768px) { .res-grid { grid-template-columns: 1fr; } }
+    .res-card { background: #334155; padding: 12px; border-radius: 8px; font-size: 13px; border-left: 5px solid #0284c7; display: flex; justify-content: space-between; align-items: center; }
     .res-card.perfect { border-left-color: #22c55e; background: #0f291e; }
-    .badge-100 { background: #22c55e; color: #000; font-weight: bold; padding: 3px 10px; border-radius: 4px; font-size: 12px; }
-    .badge-norm { background: #0284c7; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 12px; }
+    .badge-100 { background: #22c55e; color: #000; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+    .badge-norm { background: #0284c7; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <h2>Analizador Estadístico de Partidos (Contexto por Niveles)</h2>
+    <h2>Analizador Pro: Mercados, Hándicap y Cruces 6/6</h2>
     <div class="subtitle">
-      • <strong>Local:</strong> Últimos 3 partidos jugando <em>en casa</em> contra rivales de similar nivel.<br>
-      • <strong>Visitante:</strong> Últimos 3 partidos jugando <em>fuera</em> contra rivales de similar nivel.
+      • <strong>Columna Izquierda (Local):</strong> Últimos 3 partidos del Local jugando en casa.<br>
+      • <strong>Columna Derecha (Visitante):</strong> Últimos 3 partidos del Visitante jugando fuera.
     </div>
 
     <div class="grid">
-      <div>
-        <h3>Equipo Local (3 Partidos en Casa)</h3>
+      <!-- LOCAL - IZQUIERDA -->
+      <div class="col-local">
+        <h3 style="color: #38bdf8;">🏠 Equipo Local (En Casa)</h3>
         <div id="home-matches"></div>
       </div>
-      <div>
-        <h3>Equipo Visitante (3 Partidos Fuera)</h3>
+      
+      <!-- VISITANTE - DERECHA -->
+      <div class="col-visitante">
+        <h3 style="color: #f59e0b;">✈️ Equipo Visitante (Fuera)</h3>
         <div id="away-matches"></div>
       </div>
     </div>
-    <button onclick="ejecutarAnalisis()">Analizar Patrones Individuales y Globales 6/6</button>
+
+    <button onclick="ejecutarAnalisisTotal()">Analizar Todos los Mercados y Hándicap</button>
   </div>
 
   <div class="card">
-    <h2>Resultados del Análisis</h2>
+    <h2>Resultados Completos</h2>
     <div id="resultados">Ingresa los datos y presiona el botón de análisis.</div>
   </div>
 
@@ -81,12 +94,12 @@
 
     function cargarDefaults() {
       const defaultsHome = [
-        [1,0,  6,3,  14,8,  5,2],
-        [2,1,  5,4,  12,10, 6,4],
-        [2,0,  7,2,  15,6,  7,3]
+        [2,0,  6,3,  14,8,  5,2],
+        [1,1,  5,4,  12,10, 6,4],
+        [3,0,  7,2,  15,6,  7,3]
       ];
       const defaultsAway = [
-        [1,2,  5,4,  11,13, 4,5],
+        [1,1,  5,4,  11,13, 4,5],
         [2,1,  6,3,  10,12, 5,4],
         [1,0,  5,4,  12,11, 4,4]
       ];
@@ -110,7 +123,7 @@
 
     function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
 
-    function ejecutarAnalisis() {
+    function ejecutarAnalisisTotal() {
       const h = [], a = [];
       for (let i = 1; i <= 3; i++) {
         h.push({
@@ -127,46 +140,94 @@
         });
       }
 
-      // 1. PATRONES INDIVIDUALES (3/3 partidos de cada equipo)
-      const ind_home_score = h.filter(x => x.gf >= 1).length;
-      const ind_away_score = a.filter(x => x.gf >= 1).length;
-      const ind_home_sot = h.filter(x => x.saf >= 4).length;
-      const ind_away_sot = a.filter(x => x.saf >= 4).length;
-
-      // 2. CRUCES CRUZADOS Y GLOBALES (6 partidos en total combinando local en casa + visitante fuera)
-      // Ejemplo: Visitante mete remates al arco (a.saf) y Local permite remates en contra (h.saa)
-      const c_vis_sot_vs_h_concede = a.filter(x => x.saf >= 4).length + h.filter(x => x.saa >= 4).length;
-      const c_loc_sot_vs_a_concede = h.filter(x => x.saf >= 4).length + a.filter(x => x.saa >= 4).length;
-
-      const c_vis_marca_vs_h_def = a.filter(x => x.gf >= 1).length + h.filter(x => x.ga >= 1).length;
-      const c_loc_marca_vs_a_def = h.filter(x => x.gf >= 1).length + a.filter(x => x.ga >= 1).length;
-
-      const c_vis_corners = a.filter(x => x.cf >= 4).length + h.filter(x => x.ca >= 4).length;
-      const c_loc_corners = h.filter(x => x.cf >= 4).length + a.filter(x => x.ca >= 4).length;
-
       const todos = [...h, ...a];
-      const global_total_corners = todos.filter(x => (x.cf + x.ca) >= 8).length;
-      const global_total_shots = todos.filter(x => (x.stf + x.sta) >= 18).length;
+
+      // --- CÁLCULO DE MERCADOS Y HÁNDICAP ASIÁTICO ---
+
+      // 1. Ganador y Doble Oportunidad
+      const homeWinsOrDraw = h.filter(x => x.gf >= x.ga).length;
+      const awayWinsOrDraw = a.filter(x => x.gf >= x.ga).length;
+      const homeWinsClean = h.filter(x => x.gf > x.ga).length;
+      const awayWinsClean = a.filter(x => x.gf > x.ga).length;
+
+      // 2. Hándicap Asiático (Evaluando diferencia de goles en los 3 partidos de cada equipo)
+      // Hándicap -0.5 Local (Gana el partido por más de 0 goles -> Gana limpio)
+      const handicapHomeMinus05 = h.filter(x => (x.gf - x.ga) > 0).length;
+      // Hándicap 0.0 (Empate anula / Sin empate) -> No pierde (gana o empata)
+      const handicapHome00 = h.filter(x => (x.gf - x.ga) >= 0).length;
+      // Hándicap +0.5 Visitante (El visitante no pierde: gana o empata, es decir, diferencia contra él es <= 0)
+      const handicapAwayPlus05 = a.filter(x => (x.ga - x.gf) <= 0).length;
+      // Hándicap -0.5 Visitante (El visitante gana el partido limpio)
+      const handicapAwayMinus05 = a.filter(x => (x.gf - x.ga) > 0).length;
+
+      // 3. Goles (+ y -)
+      const g_over_1_5 = todos.filter(x => (x.gf + x.ga) >= 2).length;
+      const g_over_2_5 = todos.filter(x => (x.gf + x.ga) >= 3).length;
+      const g_under_2_5 = todos.filter(x => (x.gf + x.ga) <= 2).length;
+      const g_under_3_5 = todos.filter(x => (x.gf + x.ga) <= 3).length;
+      const btts = todos.filter(x => x.gf > 0 && x.ga > 0).length;
+
+      // 4. Córneres (+ y -)
+      const c_over_7_5 = todos.filter(x => (x.cf + x.ca) >= 8).length;
+      const c_under_11_5 = todos.filter(x => (x.cf + x.ca) <= 11).length;
+      const homeMoreCorners = h.filter(x => x.cf > x.ca).length + a.filter(x => x.ca < x.cf).length;
+
+      // 5. Remates (+ y -)
+      const st_over_18 = todos.filter(x => (x.stf + x.sta) >= 18).length;
+      const st_under_26 = todos.filter(x => (x.stf + x.sta) <= 26).length;
+      const sa_over_6 = todos.filter(x => (x.saf + x.saa) >= 7).length;
+
+      // 6. Cruces cruzados 6/6
+      const cross_vis_score = a.filter(x => x.gf >= 1).length + h.filter(x => x.ga >= 1).length;
+      const cross_loc_score = h.filter(x => x.gf >= 1).length + a.filter(x => x.ga >= 1).length;
+      const cross_vis_sot = a.filter(x => x.saf >= 3).length + h.filter(x => x.saa >= 3).length;
+      const cross_loc_sot = h.filter(x => x.saf >= 3).length + a.filter(x => x.saa >= 3).length;
 
       let html = '';
 
-      // Sección Individuales
-      html += `<div class="section-title">📊 Análisis Individuales (Por Bloque de 3 Partidos)</div>`;
-      html += generarCard("Local (en casa): Anota gol en sus 3 partidos", ind_home_score, 3);
-      html += generarCard("Visitante (fuera): Anota gol en sus 3 partidos", ind_away_score, 3);
-      html += generarCard("Local (en casa): Hace +3.5 remates al arco en sus 3 partidos", ind_home_sot, 3);
-      html += generarCard("Visitante (fuera): Hace +3.5 remates al arco en sus 3 partidos", ind_away_sot, 3);
+      // BLOQUE 1: 1X2 Y HÁNDICAP ASIÁTICO
+      html += `<div class="section-title">⚖️ Mercado 1X2 y Hándicap Asiático (Por Bloque de 3)</div>`;
+      html += `<div class="res-grid">`;
+      html += generarCard("Local: Hándicap Asiático -0.5 (Gana)", handicapHomeMinus05, 3);
+      html += generarCard("Visitante: Hándicap Asiático +0.5 (No pierde)", handicapAwayPlus05, 3);
+      html += generarCard("Local: Hándicap Asiático 0.0 / Sin Empate (DNB)", handicapHome00, 3);
+      html += generarCard("Visitante: Hándicap Asiático -0.5 (Gana fuera)", handicapAwayMinus05, 3);
+      html += `</div>`;
 
-      // Sección Globales / Cruces 6/6
-      html += `<div class="section-title">🔥 Cruces Cruzados y Globales (6 Partidos Combinados)</div>`;
-      html += generarCard("Cruce: Visitante hace +3.5 remates al arco vs Permisividad del Local", c_vis_sot_vs_h_concede, 6);
-      html += generarCard("Cruce: Local hace +3.5 remates al arco vs Permisividad del Visitante", c_loc_sot_vs_a_concede, 6);
-      html += generarCard("Cruce: Visitante anota gol (+0.5) vs Defensiva del Local", c_vis_marca_vs_h_def, 6);
-      html += generarCard("Cruce: Local anota gol (+0.5) vs Defensiva del Visitante", c_loc_marca_vs_a_def, 6);
-      html += generarCard("Cruce: Visitante fuerza córneres vs Concesión del Local", c_vis_corners, 6);
-      html += generarCard("Cruce: Local fuerza córneres vs Concesión del Visitante", c_loc_corners, 6);
-      html += generarCard("Global 6 Partidos: Partidos totales con +7.5 Córneres combinados", global_total_corners, 6);
-      html += generarCard("Global 6 Partidos: Partidos totales con +17.5 Remates Totales combinados", global_total_shots, 6);
+      // BLOQUE 2: GOLES
+      html += `<div class="section-title">⚽ Goles - Más y Menos (En los 6 Partidos Globales)</div>`;
+      html += `<div class="res-grid">`;
+      html += generarCard("Más de 1.5 Goles Totales", g_over_1_5, 6);
+      html += generarCard("Más de 2.5 Goles Totales", g_over_2_5, 6);
+      html += generarCard("Menos de 2.5 Goles Totales", g_under_2_5, 6);
+      html += generarCard("Menos de 3.5 Goles Totales", g_under_3_5, 6);
+      html += generarCard("Ambos Anotan (BTTS)", btts, 6);
+      html += `</div>`;
+
+      // BLOQUE 3: CÓRNERES
+      html += `<div class="section-title">🚩 Córneres - Más y Menos (En los 6 Partidos Globales)</div>`;
+      html += `<div class="res-grid">`;
+      html += generarCard("Más de 7.5 Córneres Totales", c_over_7_5, 6);
+      html += generarCard("Menos de 11.5 Córneres Totales", c_under_11_5, 6);
+      html += generarCard("Tendencia: Local saca más córneres", homeMoreCorners, 6);
+      html += `</div>`;
+
+      // BLOQUE 4: REMATES
+      html += `<div class="section-title">🎯 Remates Totales y al Arco (+ y -)</div>`;
+      html += `<div class="res-grid">`;
+      html += generarCard("Más de 17.5 Remates Totales", st_over_18, 6);
+      html += generarCard("Menos de 26.5 Remates Totales", st_under_26, 6);
+      html += generarCard("Más de 6.5 Remates al Arco Totales", sa_over_6, 6);
+      html += `</div>`;
+
+      // BLOQUE 5: CRUCES CRUZADOS
+      html += `<div class="section-title">🔥 Cruces Cruzados Directos (6 Partidos Combinados)</div>`;
+      html += `<div class="res-grid">`;
+      html += generarCard("Cruce: Visitante anota gol vs Defensiva Local", cross_vis_score, 6);
+      html += generarCard("Cruce: Local anota gol vs Defensiva Visitante", cross_loc_score, 6);
+      html += generarCard("Cruce: Visitante remata al arco vs Concesión Local", cross_vis_sot, 6);
+      html += generarCard("Cruce: Local remata al arco vs Concesión Visitante", cross_loc_sot, 6);
+      html += `</div>`;
 
       document.getElementById('resultados').innerHTML = html;
     }
